@@ -1,0 +1,11 @@
+{
+    "name": "donasihook",
+    "description": "Webhook for donasi bot",
+    "repository": "https://github.com/me-abumuhammad/donasiwebhook.git",
+    "success_url": "/",
+    "keywords": ["rust", "actix"],
+    "website": "https://github.com/me-abumuhammad/donasiwebhook.git",
+    "env": {
+      "BUILDPACK_URL": "https://github.com/me-abumuhammad/donasiwebhook.git"
+    }
+  }
