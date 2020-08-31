@@ -16,7 +16,8 @@ pub struct Message {
 #[derive(Clone)]
 pub struct AppState {
     pub log: slog::Logger,
-    pub token: String
+    pub token: String,
+    pub path: String,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -2,11 +2,14 @@ use std::fmt;
 use std::error::Error;
 use serde::Serialize;
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
+use mongodb::error::{Error as MongoError, ErrorKind};
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub enum AppErrorType {
     ReqErr,
-    NotFoundError
+    NotFoundError,
+    DbError
 }
 
 #[derive(Debug)]
@@ -51,6 +54,7 @@ impl ResponseError for AppError {
         match self.error_type {
             AppErrorType::ReqErr => StatusCode::INTERNAL_SERVER_ERROR,
             AppErrorType::NotFoundError => StatusCode::NOT_FOUND,
+            _ => StatusCode::NOT_FOUND,
         }
     }
 

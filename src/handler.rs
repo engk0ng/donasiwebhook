@@ -8,6 +8,7 @@ use http::StatusCode;
 use crate::errors::{AppErrorType, AppError};
 use crate::posting;
 use crate::models::{AppState, TelegramReq, Message, Status};
+use crate::db::DbProcessor;
 
 struct TypeHtml;
 struct TypeMarkdown;
@@ -58,6 +59,11 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                         let req = message_bantuan(&name, json.message.chat.id);
                         let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
                     },
+                    "/saldo" => {
+                        let path = state.path.clone();
+                        let req = message_saldo(&name, json.message.chat.id, path).await;
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                    },
                     _ => {
                         let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}", name);
                         let req = Message {chat_id: json.message.chat.id, text: msg, parse_mode: String::from(html(&TypeHtml))};
@@ -72,13 +78,29 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
 }
 
 fn message_start(name: &String, id: i64) -> Message {
-    let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}, ini adalah bot Grup Amanah Muhsinin MTQS.\n\n Ketik <b>\\bantuan</b> untuk melihat menu yang ada.", name);
+    let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}, ini adalah bot Grup Amanah Muhsinin MTQS.\n\n Ketik /bantuan untuk melihat menu yang ada.\n\n <b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
     let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
     req
 }
 
 fn message_bantuan(name: &String, id: i64) -> Message {
-    let msg = format!("{}, berikut adalah menu yang tersedia di bot Amanah Muhsinin MTQS\n\n1. Cek saldo ketik \\saldo\n\n Menu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.", name);
+    let msg = format!("<b>{}</b>\n\n, <pre>Berikut adalah menu yang tersedia di bot Amanah Muhsinin MTQS\n\n1. Cek saldo ketik /saldo\n\n Menu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.", name);
+    let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
+    req
+}
+
+async fn message_saldo(name: &String, id: i64, url_s: String) -> Message {
+    let db = DbProcessor{url: url_s};
+    let data = db.get_data_donasi().await.unwrap();
+    let mut msg = format!("{}\n<b>Saldo donasi MTQS sekarang adalah:</b>\n\n", name);
+    msg.push_str("<pre>");
+    for item in data.0 {
+        msg.push_str(item.as_str());
+    }
+    msg.push_str("</pre>");
+    msg.push_str("\n");
+    let total = format!("<b>Total saldo: Rp {}.</b>\n\nSemoga bermanfaat.\nUntuk info lainnya ketik /bantuan", data.1);
+    msg.push_str(total.as_str());
     let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
     req
 }
