@@ -17,7 +17,7 @@ pub struct DbProcessor {
 impl  DbProcessor {
     pub async fn db_connect(&self) -> mongodb::error::Result<Database> {
         let uri = &self.url;
-        println!("URI: {}", uri);
+        //println!("URI: {}", uri);
         let split = uri.split("/");
         let arr = split.collect::<Vec<&str>>();
         
@@ -26,6 +26,7 @@ impl  DbProcessor {
 
         let client = Client::with_options(client_options).unwrap();
         let last_path = arr.last().unwrap();
+        println!("LastPath: {}", *last_path);
         let db = client.database(*last_path);
 
         Ok(db)  
