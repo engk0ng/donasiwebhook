@@ -47,12 +47,16 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                 let split = message_text.split("@");
                 let arr = split.collect::<Vec<&str>>();
                 let mut name: String = json.message.from.first_name;
-                let lmp = json.message.from.last_name.unwrap();
+                let lmp = json.message.from.last_name;
 
-                if lmp != "" {
-                    name.push_str(" ");
-                    name.push_str(lmp.as_str());
+                match lmp {
+                    Some(s) => {
+                        name.push_str(" ");
+                        name.push_str(s.as_str());
+                    }
+                    None => {}
                 }
+                
                 match *(arr.first().unwrap()) {
                     "/start" => {
                         let req = message_start(&name, json.message.chat.id);
