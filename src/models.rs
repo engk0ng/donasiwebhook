@@ -28,10 +28,10 @@ pub struct TelegramReq {
 #[derive(Serialize, Deserialize)]
 pub struct Messages {
     message_id: i64,
-    from: From,
+    pub from: From,
     pub chat: Chat,
     date: i64,
-    text: String,
+    pub text: String,
     entities: Vec<Entity>,
 }
 
@@ -40,7 +40,7 @@ pub struct Chat {
     pub id: i64,
     title: String,
     #[serde(rename = "type")]
-    chat_type: String,
+    pub chat_type: String,
     all_members_are_administrators: bool,
 }
 
@@ -56,8 +56,8 @@ pub struct Entity {
 pub struct From {
     id: i64,
     is_bot: bool,
-    first_name: String,
-    last_name: String,
+    pub first_name: String,
+    pub last_name: String,
     username: String,
     language_code: String,
 }
