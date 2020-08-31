@@ -57,13 +57,14 @@ impl  DbProcessor {
                 nominal = 0;
             }
             let money_i = nominal.to_string();
+            //println!("{}", money_i);
             let money = utils::convert_format_money(money_i);
             let str_fmt = format!("{}. {}\nRp {}\n\n", i, name_str, money);
             res.push(str_fmt);
             i += 1;
         }
         let total_str = utils::convert_format_money(total_u.to_string());
-        println!("Total: {}", &total_str);
+        //println!("Total: {}", &total_str);
         Ok((res, total_str))
     }
 }

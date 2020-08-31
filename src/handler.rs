@@ -72,6 +72,7 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                     }
                 }
             }
+            
             Ok("".with_status(StatusCode::OK))
         },
         Err(_) => Err(AppError {cause: None, message: Some(String::from("")), error_type: AppErrorType::NotFoundError}),
@@ -79,13 +80,13 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
 }
 
 fn message_start(name: &String, id: i64) -> Message {
-    let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}, ini adalah bot Grup Amanah Muhsinin MTQS.\n\n Ketik /bantuan untuk melihat menu yang ada.\n\n <b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
+    let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan <b>{}</b>, ini adalah bot Grup Amanah Muhsinin MTQS.\n\n Ketik /bantuan untuk melihat menu yang ada.\n\n <b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
     let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
     req
 }
 
 fn message_bantuan(name: &String, id: i64) -> Message {
-    let msg = format!("<b>{}</b>\n\n, <pre>Berikut adalah menu yang tersedia di bot Amanah Muhsinin MTQS\n\n1. Cek saldo ketik /saldo\n\n Menu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.\n<b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
+    let msg = format!("<b>{}</b>,\n\nBerikut adalah menu yang tersedia di bot Amanah Muhsinin MTQS\n\n1. Cek saldo ketik /saldo\n\nMenu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.\n<b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
     let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
     req
 }
@@ -93,7 +94,7 @@ fn message_bantuan(name: &String, id: i64) -> Message {
 async fn message_saldo(name: &String, id: i64, url_s: String) -> Message {
     let db = DbProcessor{url: url_s};
     let data = db.get_data_donasi().await.unwrap();
-    let mut msg = format!("{}\n<b>Saldo donasi MTQS sekarang adalah:</b>\n\n", name);
+    let mut msg = format!("<b>{}</b>,\n<b>Saldo donasi MTQS sekarang adalah:</b>\n\n", name);
     msg.push_str("<pre>");
     for item in data.0 {
         msg.push_str(item.as_str());
