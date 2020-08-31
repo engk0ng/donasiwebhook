@@ -39,6 +39,7 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
     let sublog = state.log.new(o!("handler" => "process"));
     match String::from_utf8(bytes.to_vec()) {
         Ok(ss) => {
+            println!("Result String: {}", ss);
             let json: TelegramReq = serde_json::from_str(ss.as_str()).unwrap();
             let req = Message {chat_id: json.message.chat.id, text: String::from("start"), parse_mode: String::from(html(&TypeHtml))};
             let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
