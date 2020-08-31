@@ -39,7 +39,7 @@ pub struct Messages {
 #[derive(Serialize, Deserialize)]
 pub struct Chat {
     pub id: i64,
-    title: String,
+    title: Option<String>,
     #[serde(rename = "type")]
     pub chat_type: String,
     all_members_are_administrators: bool,
