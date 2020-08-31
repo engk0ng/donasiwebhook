@@ -25,8 +25,7 @@ impl  DbProcessor {
         client_options.app_name = Some("My App".to_string());
 
         let client = Client::with_options(client_options).unwrap();
-        let last_path = arr.last().unwrap();
-        println!("LastPath: {}", *last_path);
+        let last_path = arr.last().unwrap();    
         let db = client.database(*last_path);
 
         Ok(db)  
@@ -64,6 +63,7 @@ impl  DbProcessor {
             i += 1;
         }
         let total_str = utils::convert_format_money(total_u.to_string());
+        println!("Total: {}", &total_str);
         Ok((res, total_str))
     }
 }
