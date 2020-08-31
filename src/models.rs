@@ -58,7 +58,7 @@ pub struct From {
     id: i64,
     is_bot: bool,
     pub first_name: String,
-    pub last_name: String,
+    pub last_name: Option<String>,
     username: String,
     language_code: String,
 }

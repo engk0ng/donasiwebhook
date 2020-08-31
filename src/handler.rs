@@ -49,7 +49,7 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                 let mut name: String = json.message.from.first_name;
                 let lmp = json.message.from.last_name;
 
-                if lmp != "" {
+                if lmp.unwrap() != "" {
                     name.push_str(" ");
                     name.push_str(lmp.as_str());
                 }
