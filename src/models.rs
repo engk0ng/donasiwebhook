@@ -42,7 +42,7 @@ pub struct Chat {
     title: Option<String>,
     #[serde(rename = "type")]
     pub chat_type: String,
-    all_members_are_administrators: bool,
+    all_members_are_administrators: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
