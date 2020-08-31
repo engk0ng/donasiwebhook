@@ -33,7 +33,7 @@ pub struct Messages {
     pub chat: Chat,
     date: i64,
     pub text: String,
-    entities: Vec<Entity>,
+    entities: Option<Vec<Entity>>,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -6,7 +6,7 @@ pub fn convert_format_money(money: String) -> String {
     let mut tt = len;
     let mut v = Vec::<String>::new();
     for _ in 0..ss as i32 {
-        let mut res = String::from("");
+        let res;
         if tt >= 3 {
             tt -= 3;
             res = String::from(&money[tt..len]);

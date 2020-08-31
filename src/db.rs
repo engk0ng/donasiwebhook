@@ -41,14 +41,14 @@ impl  DbProcessor {
         let mut total_u: i64 = 0;
         while let Some(result) = curson.next().await {
             let document = result.unwrap();
-            let mut name_str: String;
+            let name_str: String;
             if let Some(name) = document.get("nama").and_then(Bson::as_str) {
                 name_str = String::from(name);
             }
             else {
                 name_str = String::from("");
             }
-            let mut nominal: i64;
+            let nominal: i64;
             if let Some(total) = document.get("nominal").and_then(Bson::as_i64) {
                 nominal = total;
                 total_u += nominal;
