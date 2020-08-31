@@ -47,9 +47,9 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                 let split = message_text.split("@");
                 let arr = split.collect::<Vec<&str>>();
                 let mut name: String = json.message.from.first_name;
-                let lmp = json.message.from.last_name;
+                let lmp = json.message.from.last_name.unwrap();
 
-                if lmp.unwrap() != "" {
+                if lmp != "" {
                     name.push_str(" ");
                     name.push_str(lmp.as_str());
                 }
