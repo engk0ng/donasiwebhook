@@ -40,7 +40,7 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
     let sublog = state.log.new(o!("handler" => "process"));
     match String::from_utf8(bytes.to_vec()) {
         Ok(ss) => {
-            println!("{}", ss);
+            //println!("{}", ss);
             let json: TelegramReq = serde_json::from_str(ss.as_str()).unwrap();
             if json.message.chat.chat_type == "group" {
                 let message_text = json.message.text;

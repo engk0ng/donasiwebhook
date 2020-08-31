@@ -17,6 +17,7 @@ pub struct DbProcessor {
 impl  DbProcessor {
     pub async fn db_connect(&self) -> mongodb::error::Result<Database> {
         let uri = &self.url;
+        println!("URI: {}", uri);
         let split = uri.split("/");
         let arr = split.collect::<Vec<&str>>();
         
