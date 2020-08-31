@@ -40,6 +40,7 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
     let sublog = state.log.new(o!("handler" => "process"));
     match String::from_utf8(bytes.to_vec()) {
         Ok(ss) => {
+            println!("{}", ss);
             let json: TelegramReq = serde_json::from_str(ss.as_str()).unwrap();
             if json.message.chat.chat_type == "group" {
                 let message_text = json.message.text;
@@ -84,7 +85,7 @@ fn message_start(name: &String, id: i64) -> Message {
 }
 
 fn message_bantuan(name: &String, id: i64) -> Message {
-    let msg = format!("<b>{}</b>\n\n, <pre>Berikut adalah menu yang tersedia di bot Amanah Muhsinin MTQS\n\n1. Cek saldo ketik /saldo\n\n Menu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.", name);
+    let msg = format!("<b>{}</b>\n\n, <pre>Berikut adalah menu yang tersedia di bot Amanah Muhsinin MTQS\n\n1. Cek saldo ketik /saldo\n\n Menu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.\n<b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
     let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
     req
 }
