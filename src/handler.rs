@@ -41,25 +41,46 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
         Ok(ss) => {
             let json: TelegramReq = serde_json::from_str(ss.as_str()).unwrap();
             if json.message.chat.chat_type == "group" {
-                if json.message.text.as_str() == "/start" {
-                    let mut name: String = json.message.from.first_name;
-                    let lmp = json.message.from.last_name;
-    
-                    if lmp != "" {
-                        name.push_str(" ");
-                        name.push_str(lmp.as_str());
+                let message_text = json.message.text;
+                let mut name: String = json.message.from.first_name;
+                let lmp = json.message.from.last_name;
+
+                if lmp != "" {
+                    name.push_str(" ");
+                    name.push_str(lmp.as_str());
+                }
+                match message_text.as_str() {
+                    "/start" => {
+                        let req = message_start(&name, json.message.chat.id);
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                    },
+                    "/bantuan" => {
+                        let req = message_bantuan(&name, json.message.chat.id);
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                    },
+                    _ => {
+                        let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}", name);
+                        let req = Message {chat_id: json.message.chat.id, text: msg, parse_mode: String::from(html(&TypeHtml))};
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
                     }
-                    
-                    let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}, ini adalah bot Grup Amanah Muhsinin MTQS.\n\n Ketik \\bantuan untuk melihat menu yang ada.", name);
-                    let req = Message {chat_id: json.message.chat.id, text: msg, parse_mode: String::from(html(&TypeHtml))};
-                    let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
                 }
             }
             Ok("".with_status(StatusCode::OK))
         },
         Err(_) => Err(AppError {cause: None, message: Some(String::from("")), error_type: AppErrorType::NotFoundError}),
     }
-    
+}
+
+fn message_start(name: &String, id: i64) -> Message {
+    let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}, ini adalah bot Grup Amanah Muhsinin MTQS.\n\n Ketik <b>\\bantuan</b> untuk melihat menu yang ada.", name);
+    let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
+    req
+}
+
+fn message_bantuan(name: &String, id: i64) -> Message {
+    let msg = format!("{}, berikut adalah menu yang tersedia di bot Amanah Muhsinin MTQS\n\n1. Cek saldo ketik \\saldo\n\n Menu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.", name);
+    let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
+    req
 }
 
 
