@@ -55,10 +55,10 @@ pub struct Chat {
     pub id: i64,
 
     #[serde(rename = "first_name")]
-    first_name: String,
+    pub first_name: String,
 
     #[serde(rename = "last_name")]
-    last_name: String,
+    pub last_name: String,
 
     #[serde(rename = "username")]
     username: String,
