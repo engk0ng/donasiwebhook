@@ -44,6 +44,8 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
             let json: TelegramReq = serde_json::from_str(ss.as_str()).unwrap();
             if json.message.chat.chat_type == "group" {
                 let message_text = json.message.text;
+                let split = message_text.split("@");
+                let arr = split.collect::<Vec<&str>>();
                 let mut name: String = json.message.from.first_name;
                 let lmp = json.message.from.last_name;
 
@@ -51,7 +53,7 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                     name.push_str(" ");
                     name.push_str(lmp.as_str());
                 }
-                match message_text.as_str() {
+                match *(arr.first().unwrap()) {
                     "/start" => {
                         let req = message_start(&name, json.message.chat.id);
                         let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
