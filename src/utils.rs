@@ -7,7 +7,8 @@ pub fn convert_format_money(money: String) -> String {
     }
     else {
         let mut len = money.len();
-        let ss = (len as f64/3.0).round();
+        let ss = (len as f64/3.0).ceil();
+        
         let mut tt = len;
         let mut v = Vec::<String>::new();
         for _ in 0..ss as i32 {
@@ -20,11 +21,9 @@ pub fn convert_format_money(money: String) -> String {
             else {
                 res = String::from(&money[0..tt]);
             }
-            println!("{:?}", res);
             v.push(res);
         }
         v.reverse();
-        println!("{:?}", v);
         let mut result = String::from("");
         for i in 0..v.len() {
             result.push_str(v[i].as_str());
