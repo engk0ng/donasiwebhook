@@ -23,6 +23,7 @@ pub fn convert_format_money(money: String) -> String {
             v.push(res);
         }
         v.reverse();
+        println!("{:?}", v);
         let mut result = String::from("");
         for i in 0..v.len() {
             result.push_str(v[i].as_str());
@@ -30,7 +31,7 @@ pub fn convert_format_money(money: String) -> String {
                 result.push_str(".");
             }
         }
-        println!("{:?}", v);
+        
         std::mem::drop(v);
         String::from(result)
     }
