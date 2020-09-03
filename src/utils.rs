@@ -20,6 +20,7 @@ pub fn convert_format_money(money: String) -> String {
             else {
                 res = String::from(&money[0..tt]);
             }
+            println!("{:?}", res);
             v.push(res);
         }
         v.reverse();
