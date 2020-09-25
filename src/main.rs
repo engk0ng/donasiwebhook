@@ -23,7 +23,11 @@ async fn main() -> io::Result<()> {
     let pool = config.pg.create_pool(NoTls).unwrap();
 
     let host = config.server.host;
-    let port = config.server.port;
+    let p = match env::var("PORT") {
+        Ok(pr) => i32(p),
+        Err(e) => 8779
+    };
+    let port = p;
     let token = config.server.token;
     let path = config.server.mongo_uri;
     let log = Config::configure_log();
