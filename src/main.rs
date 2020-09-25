@@ -22,10 +22,8 @@ async fn main() -> io::Result<()> {
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(NoTls).unwrap();
 
-    // let host = env::var("HOST").expect("Host not set");
-    // let port = env::var("PORT").expect("Port not set");
-    let token = env::var("TOKEN").expect("Token not set");
-    let path = env::var("MONGODB_URI").expect("Mongodb url not set");
+    let token = config.server.token;
+    let path = config.server.mongo_uri;
     let log = Config::configure_log();
 
     HttpServer::new(move || {
