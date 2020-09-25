@@ -24,7 +24,7 @@ async fn main() -> io::Result<()> {
 
     let host = config.server.host;
     let p = match env::var("PORT") {
-        Ok(pr) => i32(p),
+        Ok(pr) => pr.parse::<i32>().unwrap(),
         Err(e) => 8779
     };
     let port = p;
