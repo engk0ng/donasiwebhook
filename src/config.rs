@@ -1,4 +1,5 @@
-use config::ConfigError;
+
+use config::{ConfigError, File, Environment};
 use serde::Deserialize;
 use slog::{o, Drain, Logger};
 use slog_async;
@@ -22,7 +23,7 @@ pub struct Config {
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
         let mut cfg = config::Config::new();
-        cfg.merge(config::Environment::new())?;
+        cfg.merge(File::with_name("config/default"))?;
         cfg.try_into()
     }
     pub fn configure_log() -> Logger {

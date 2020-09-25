@@ -22,6 +22,8 @@ async fn main() -> io::Result<()> {
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(NoTls).unwrap();
 
+    let host = config.server.host;
+    let port = config.server.port;
     let token = config.server.token;
     let path = config.server.mongo_uri;
     let log = Config::configure_log();
@@ -32,7 +34,7 @@ async fn main() -> io::Result<()> {
         .data(AppState {log: log.clone(), token: token.clone(), path: path.clone(), pool: pool.clone()})
         .route("/", web::post().to(process))
     })
-    .bind(format!("{}:{}", config.server.host, config.server.port))?
+    .bind(format!("{}:{}", host, port))?
     .run()
     .await
 }
