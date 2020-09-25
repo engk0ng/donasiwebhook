@@ -1,0 +1,12 @@
+[server]
+host = "0.0.0.0"
+port = 8899
+token = "1110233740:AAGiZBgr42g1LyqqDoGZqA7n0E2SkwC6gOo"
+mongo_uri = "mongodb://heroku_7kjn7vwh:h81mhhqnbed6dlvggvdf6r1ovv@ds121464.mlab.com:21464/heroku_7kjn7vwh"
+[pg]
+user = "omabhidypobdnj"
+password = "ec9bc23a5798dbf70bdd6bd93c41afc2cb9c8825a521524c689cb4b3a33ffd42"
+host = "ec2-54-156-121-142.compute-1.amazonaws.com"
+port = 5432
+dbname = "d6q23eqt9eb5qe"
+POOL.MAX_SIZE = 30
