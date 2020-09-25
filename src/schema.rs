@@ -1,5 +1,5 @@
 table! {
-    rekap(kode) {
+    donasi.rekap(kode) {
         kode -> Varchar,
         name -> Varchar,
         nominal -> Int64,

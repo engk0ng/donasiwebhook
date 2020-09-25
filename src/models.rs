@@ -67,7 +67,7 @@ pub struct From {
 }
 
 #[derive(Serialize, Deserialize, PostgresMapper)]
-#[pg_mapper(table = "rekap")]
+#[pg_mapper(table = "donasi.rekap")]
 pub struct Rekap {
     pub kode: String,
     pub name: String,
