@@ -1,9 +1,9 @@
-use std::fmt;
 use std::error::Error;
+use std::fmt;
 use serde::Serialize;
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
-use mongodb::error::{Error as MongoError, ErrorKind};
-use std::sync::Arc;
+use deadpool_postgres::PoolError;
+use tokio_postgres::error::Error as TPError;
 
 #[derive(Debug)]
 pub enum AppErrorType {
@@ -36,6 +36,26 @@ impl AppError {
     }
 }
 
+impl From<PoolError> for AppError {
+    fn from(error: PoolError) -> AppError {
+        AppError {
+            message: None,
+            cause: Some(error.to_string()),
+            error_type: AppErrorType::DbError
+        }
+    }
+}
+
+impl From<TPError> for AppError {
+    fn from(error: TPError) -> AppError {
+        AppError {
+            message: None,
+            cause: Some(error.to_string()),
+            error_type: AppErrorType::DbError,
+        }
+    }
+}
+
 impl Error for AppError {}
 
 impl fmt::Display for AppError {
@@ -52,6 +72,7 @@ pub struct AppErrorResponse {
 impl ResponseError for AppError {
     fn status_code(&self) -> StatusCode {
         match self.error_type {
+            AppErrorType::DbError => StatusCode::INTERNAL_SERVER_ERROR,
             AppErrorType::ReqErr => StatusCode::INTERNAL_SERVER_ERROR,
             AppErrorType::NotFoundError => StatusCode::NOT_FOUND,
             _ => StatusCode::NOT_FOUND,

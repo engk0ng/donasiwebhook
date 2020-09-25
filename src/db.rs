@@ -1,3 +1,4 @@
+use crate::errors::{AppError, AppErrorType::*};
 use mongodb::{Client, 
     options::ClientOptions, 
     Database, 
@@ -5,6 +6,10 @@ use mongodb::{Client,
     bson::{doc, Bson},
     options::FindOneOptions,
 };
+
+use crate::models::{Rekap};
+use deadpool_postgres::Client as PQClient;
+use tokio_pg_mapper::FromTokioPostgresRow;
 
 use crate::utils;
 
@@ -67,4 +72,35 @@ impl  DbProcessor {
         //println!("Total: {}", &total_str);
         Ok((res, total_str))
     }
+}
+
+pub async fn get_rekap(client: &PQClient) -> Result<(Vec<String>, String), AppError> {
+    let statement = client
+    .prepare("select * from donasi.rekap")
+    .await?;
+
+    let maybe_rekap = client
+    .query_opt(&statement, &[])
+    .await?
+    .iter()
+    .map(|row| Rekap::from_row_ref(row).unwrap())
+    .collect::<Vec<Rekap>>();
+
+    let mut i: i32 = 1;
+    let mut res = Vec::<String>::new();
+    let mut total_u: i64 = 0;
+    for result in maybe_rekap {
+        let name_str: String = result.name;
+        let nominal: i64 = result.nominal;
+        total_u += nominal;
+        let money_i = nominal.to_string();
+        //println!("{}", money_i);
+        let money = utils::convert_format_money(money_i);
+        let str_fmt = format!("{}. {}\nRp {}\n\n", i, name_str, money);
+        res.push(str_fmt);
+        i += 1;
+    }
+    let total_str = utils::convert_format_money(total_u.to_string());
+    //println!("Total: {}", &total_str);
+    Ok((res, total_str))
 }

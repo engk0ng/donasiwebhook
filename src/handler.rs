@@ -1,14 +1,15 @@
-
+use crate::db;
 use serde_json;
 use std::str;
 use actix_web::{web::{Bytes, Data}, Responder, HttpResponse};
-use slog::{error, o, Logger};
+use slog::{crit, error, o, Logger};
 use http::StatusCode;
 
 use crate::errors::{AppErrorType, AppError};
 use crate::posting;
-use crate::models::{AppState, TelegramReq, Message, Status};
+use crate::models::{AppState, TelegramReq, Message, Status, Rekap};
 use crate::db::DbProcessor;
+use deadpool_postgres::{Client, Pool, PoolError};
 
 struct TypeHtml;
 struct TypeMarkdown;
@@ -30,6 +31,14 @@ fn log_error(log: Logger) -> impl Fn(AppError) -> AppError {
         error!(log, "{}", err.message());
         err
     }
+}
+
+async fn get_client(pool: Pool, log: Logger) -> Result<Client, AppError> {
+    pool.get().await.map_err(|err: PoolError| {
+        let sublog = log.new(o!("casuse" => err.to_string()));
+        crit!(sublog, "Error creating client");
+        AppError::from(err)
+    })
 }
 
 pub async fn status() -> Result<impl Responder, AppError> {
@@ -67,8 +76,9 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                         let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
                     },
                     "/saldo" => {
+                        let client = get_client(state.pool.clone(), sublog.clone()).await?;
                         let path = state.path.clone();
-                        let req = message_saldo(&name, json.message.chat.id, path).await;
+                        let req = message_saldo_from_db(&name, json.message.chat.id, path, &client).await;
                         let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
                     },
                     _ => {
@@ -108,6 +118,21 @@ async fn message_saldo(name: &String, id: i64, url_s: String) -> Message {
     msg.push_str("</pre>");
     msg.push_str("\n");
     let total = format!("<b>Total saldo: Rp {}.</b>\n\nSemoga bermanfaat.\nUntuk info lainnya ketik /bantuan", data.1);
+    msg.push_str(total.as_str());
+    let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
+    req
+}
+
+async fn message_saldo_from_db(name: &String, id: i64, url_s: String, client: &Client) -> Message {
+    let result = db::get_rekap(client).await.unwrap();
+    let mut msg = format!("<b>{}</b>,\n<b>Saldo donasi MTQS sekarang adalah:</b>\n\n", name);
+    msg.push_str("<pre>");
+    for item in result.0 {
+        msg.push_str(item.as_str());
+    }
+    msg.push_str("</pre>");
+    msg.push_str("\n");
+    let total = format!("<b>Total saldo: Rp {}.</b>\n\nSemoga bermanfaat.\nUntuk info lainnya ketik /bantuan", result.1);
     msg.push_str(total.as_str());
     let req = Message {chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
     req

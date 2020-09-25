@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use slog;
+use deadpool_postgres::Pool;
+use tokio_pg_mapper_derive::PostgresMapper;
 
 #[derive(Debug, Serialize)]
 pub struct Status {
@@ -18,6 +20,7 @@ pub struct AppState {
     pub log: slog::Logger,
     pub token: String,
     pub path: String,
+    pub pool: Pool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -61,4 +64,12 @@ pub struct From {
     pub last_name: Option<String>,
     username: String,
     language_code: String,
+}
+
+#[derive(Serialize, Deserialize, PostgresMapper)]
+#[pg_mapper(table = "rekap")]
+pub struct Rekap {
+    pub kode: String,
+    pub name: String,
+    pub nominal: i64,
 }
