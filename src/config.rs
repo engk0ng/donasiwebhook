@@ -10,14 +10,11 @@ use slog_term;
 pub struct ServerConfig {
     pub host: String,
     pub port: i32,
-    pub token: String,
-    pub mongo_uri: String,
 }
 
 #[derive(Deserialize)]
 pub struct Config {
     pub server: ServerConfig,
-    pub pg: deadpool_postgres::Config,
 }
 
 impl Config {

@@ -1,8 +1,9 @@
 use crate::errors::{AppErrorType::*, AppError};
-use crate::models::Message;
+use crate::models::{Message};
 use std::error::Error;
 use async_std::task;
 use surf;
+use std::env;
 
 use slog::{crit, o, Logger};
 

@@ -2,8 +2,6 @@ use std::error::Error;
 use std::fmt;
 use serde::Serialize;
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
-use deadpool_postgres::PoolError;
-use tokio_postgres::error::Error as TPError;
 
 #[derive(Debug)]
 pub enum AppErrorType {
@@ -11,7 +9,6 @@ pub enum AppErrorType {
     NotFoundError,
     DbError
 }
-
 #[derive(Debug)]
 pub struct AppError {
     pub message: Option<String>,
@@ -32,26 +29,6 @@ impl AppError {
                 ..
             } => "The request item was not found".to_string(),
             _ =>  "An unexpected error has occured".to_string(),
-        }
-    }
-}
-
-impl From<PoolError> for AppError {
-    fn from(error: PoolError) -> AppError {
-        AppError {
-            message: None,
-            cause: Some(error.to_string()),
-            error_type: AppErrorType::DbError
-        }
-    }
-}
-
-impl From<TPError> for AppError {
-    fn from(error: TPError) -> AppError {
-        AppError {
-            message: None,
-            cause: Some(error.to_string()),
-            error_type: AppErrorType::DbError,
         }
     }
 }
