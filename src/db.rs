@@ -109,7 +109,6 @@ impl  DbProcessor {
                             let nominal: i64 = item.nominal;
                             total_u += nominal;
                             let money_i = nominal.to_string();
-                            //println!("{}", money_i);
                             let money = utils::convert_format_money(money_i);
                             let str_fmt = format!("{}. {}\nRp {}\n\n", i, name_str, money);
                             res.push(str_fmt);
