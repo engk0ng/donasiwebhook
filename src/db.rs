@@ -75,7 +75,6 @@ impl  DbProcessor {
             i += 1;
         }
         let total_str = utils::convert_format_money(total_u.to_string());
-        //println!("Total: {}", &total_str);
         Ok((res, total_str))
     }
 
