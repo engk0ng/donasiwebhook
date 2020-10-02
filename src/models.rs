@@ -66,7 +66,7 @@ pub struct From {
     pub first_name: String,
     pub last_name: Option<String>,
     username: Option<String>,
-    language_code: String,
+    language_code: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
