@@ -42,38 +42,40 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
         Ok(ss) => {
             //println!("{}", ss);
             let json: TelegramReq = serde_json::from_str(ss.as_str()).unwrap();
-            let message_text = json.message.text;
-            let split = message_text.split("@");
-            let arr = split.collect::<Vec<&str>>();
-            let mut name: String = json.message.from.first_name;
-            let lmp = json.message.from.last_name;
+            if json.message.chat.chat_type == "group" {
+                let message_text = json.message.text;
+                let split = message_text.split("@");
+                let arr = split.collect::<Vec<&str>>();
+                let mut name: String = json.message.from.first_name;
+                let lmp = json.message.from.last_name;
 
-            match lmp {
-                Some(s) => {
-                    name.push_str(" ");
-                    name.push_str(s.as_str());
+                match lmp {
+                    Some(s) => {
+                        name.push_str(" ");
+                        name.push_str(s.as_str());
+                    }
+                    None => {}
                 }
-                None => {}
-            }
-            
-            match *(arr.first().unwrap()) {
-                "/start" => {
-                    let req = message_start(&name, json.message.chat.id);
-                    let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
-                },
-                "/bantuan" => {
-                    let req = message_bantuan(&name, json.message.chat.id);
-                    let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
-                },
-                "/saldo" => {
-                    let path = "https://cryptic-spire-19804.herokuapp.com/donasicontroller/list".to_string();
-                    let req = message_saldo_from_db(&name, json.message.chat.id, path, sublog.clone()).await;
-                    let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
-                },
-                _ => {
-                    let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}", name);
-                    let req = Message {chat_id: json.message.chat.id, text: msg, parse_mode: String::from(html(&TypeHtml))};
-                    let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                
+                match *(arr.first().unwrap()) {
+                    "/start" => {
+                        let req = message_start(&name, json.message.chat.id);
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                    },
+                    "/bantuan" => {
+                        let req = message_bantuan(&name, json.message.chat.id);
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                    },
+                    "/saldo" => {
+                        let path = "https://cryptic-spire-19804.herokuapp.com/donasicontroller/list".to_string();
+                        let req = message_saldo_from_db(&name, json.message.chat.id, path, sublog.clone()).await;
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                    },
+                    _ => {
+                        let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}", name);
+                        let req = Message {chat_id: json.message.chat.id, text: msg, parse_mode: String::from(html(&TypeHtml))};
+                        let _ = posting::update(&req, sublog.clone(), state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                    }
                 }
             }
             
