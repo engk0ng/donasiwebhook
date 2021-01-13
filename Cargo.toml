@@ -8,26 +8,28 @@ edition = "2018"
 
 [dependencies]
 actix-rt = "1.1.1"
-actix-web = "3.0.2"
-actix-http = "2.0.0"
+actix-web = "3.3.2"
+actix-http = "2.2.0"
 actix-service = "1.0.6"
-futures = "0.3.5"
+futures = "0.3.9"
+sqlx = { version = "0.4.2", features = [ "postgres", "runtime-actix-native-tls",  "chrono" ] }
 
 dotenv = "0.15.0"
 config = "0.10.1"
 
-slog = "2.5.2"
+slog = "2.7.0"
 slog-term = "2.6.0"
 slog-async = "2.5.0"
 slog-envlogger = "2.2.0"
 
-tokio = { version = "0.2", features = ["full"] }
-serde = "1.0.116"
-surf = "1.0.3"
-async-std = "1.6.4"
-serde_json = "1.0.57"
-http = "0.2.1"
-async-trait = "0.1.40"
+tokio = { version = "1.0.1", features = ["full"] }
+serde = "1.0.118"
+surf = "2.1.0"
+async-std = "1.8.0"
+serde_json = "1.0.61"
+http = "0.2.3"
+# async-trait = "0.1.42"
+anyhow = "1.0.38"
 
 [dev-dependencies]
 lazy_static = "1.4.0"

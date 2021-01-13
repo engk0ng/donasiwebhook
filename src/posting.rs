@@ -7,11 +7,11 @@ use std::env;
 
 use slog::{crit, o, Logger};
 
-pub async fn update(req: &Message, log: Logger, token: String, command: String) -> Result<String, Box<dyn Error>> {
+pub async fn update(req: Message, log: Logger, token: String, command: String) -> Result<String, Box<dyn Error>> {
     let url_post = format!("https://api.telegram.org/bot{}{}", token, command);
     task::block_on(async {
         let res = surf::post(url_post)
-        .body_json(req)?
+        .body(surf::Body::from_json(&req)?)
         .await
         .map_err(|err|{
             let sublog = log.new(o!("cause" => err.to_string()));

@@ -1,4 +1,5 @@
 use crate::errors::{AppError, AppErrorType::*};
+use anyhow::Result;
 use mongodb::{Client, 
     options::ClientOptions, 
     Database, 
@@ -6,16 +7,15 @@ use mongodb::{Client,
     bson::{doc, Bson},
     options::FindOneOptions,
 };
+use sqlx::PgPool;
+use sqlx::Done;
 
-use std::error::Error;
+use std::{any, error::Error, iter::Sum};
 use std::env;
 use async_std::task;
-
 use slog::{crit, o, Logger};
 
-use std::result::Result;
-
-use crate::models::{DataRekap, Rekap};
+use crate::models::{DataRekap, Rekap, SumberDana};
 
 use crate::utils;
 
@@ -23,6 +23,12 @@ use  futures::stream::StreamExt;
 
 pub struct DbProcessor {
     pub url: String,
+}
+
+impl DbProcessor {
+    pub fn new() -> Self {
+        Self{ url: "".to_string() }
+    }
 }
 
 impl  DbProcessor {
@@ -86,9 +92,9 @@ impl  DbProcessor {
     
         task::block_on(async {
             let res = surf::get(self.url.clone())
-            .set_header("Access-Control-Allow-Origin", "*")
-            .set_header("Content-Type", "application/json")
-            .set_header("Authorization", token)
+            .header("Access-Control-Allow-Origin", "*")
+            .header("Content-Type", "application/json")
+            .header("Authorization", token)
             .await
             .map_err(|err|{
                 let sublog = log.new(o!("cause" => err.to_string()));
@@ -124,5 +130,40 @@ impl  DbProcessor {
                 Err(e) => Err(e.into())
             }
         })
+    }
+
+    pub async fn get_rekap(self, pool: &PgPool) -> anyhow::Result<(Vec<String>, String)> {
+        let rec = sqlx::query!("
+            select * from donasi.sumber_dana where kode != $1
+        ", "DA")
+        .fetch_all(pool)
+        .await;
+        let mut result = Vec::<String>::new();
+        let mut total_str = String::from("Rp 0");
+        match rec {
+            Ok(res) => {
+                result.reserve(res.len());
+                let mut i: i32 = 1;
+                let mut total_u: i64 = 0;
+                for item in res {
+                    let sbd = SumberDana::new(item.nama, 
+                        item.kode, 
+                        item.bg.unwrap_or("".to_string()));
+                    let debet = sbd.count_debet(&pool).await.unwrap_or(0);
+                    let kredit = sbd.count_kredit(&pool).await.unwrap_or(0);
+                    let saldo = debet - kredit;
+                    total_u += saldo;
+                    let money_i = saldo.to_string();
+                    let money = utils::convert_format_money(money_i);
+                    let str_fmt = format!("{}. {}\nRp {}\n\n", i, sbd.nama, money);
+                    result.push(str_fmt);
+                    i += 1;
+                }
+                total_str = utils::convert_format_money(total_u.to_string());
+            }
+            Err(_e) => {}
+        }
+
+        Ok((result, total_str))
     }
 }
