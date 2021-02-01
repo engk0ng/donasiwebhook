@@ -76,6 +76,10 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
                             let msg = message_saldo_from_db(name, json.message.chat.id, pool, sublog.clone()).await;
                             let _ = posting::update(msg, sublog, state.token.clone(), String::from("/sendMessage")).await.unwrap();
                         },
+                        "/buku" => {
+                            let msg = message_saldo_buku(name, json.message.chat.id, pool, sublog.clone()).await;
+                            let _ = posting::update(msg, sublog, state.token.clone(), String::from("/sendMessage")).await.unwrap();
+                        }
                         _ => {
                             let msg = format!("السلام عليكم ورحمة الله\n\nAhlan wa Sahlan {}", name);
                             let req = Message::new(json.message.chat.id, msg, String::from(html(&TypeHtml)));
@@ -98,7 +102,7 @@ fn message_start(name: &String, id: i64) -> Message {
 }
 
 fn message_bantuan(name: &String, id: i64) -> Message {
-    let msg = format!("<b>{}</b>,\n\nBerikut adalah menu yang tersedia di bot Bendahara RB. 'Uddatush Shobirin\n\n1. Cek saldo ketik /saldo\n\nMenu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.\n<b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
+    let msg = format!("<b>{}</b>,\n\nBerikut adalah menu yang tersedia di bot Bendahara RB. 'Uddatush Shobirin\n\n1. Cek saldo ketik /saldo\n2. Cek Saldo Buku /buku\n\nMenu yang InsyaAllah akan diupdate.\n\n <b>Admin</b>.\n<b><i>Layanan ini InsyaAllah ada 24 jam</i></b>", name);
     let req = Message::new(id, msg, String::from(html(&TypeHtml)));
     req
 }
@@ -136,5 +140,21 @@ async fn message_saldo_from_db(name: String, id: i64, pool: PgPool, log: Logger)
     req
 }
 
+async fn message_saldo_buku(name: String, id: i64, pool: PgPool, log: Logger) -> Message {
+    let db = DbProcessor{url: "".to_string()};
+    let data = db.get_data_buku(&pool).await.unwrap();
+    let mut msg = format!("<b>{}</b>,\n<b>Saldo Buku RB. 'Uddatush Shobirin sekarang adalah:</b>\n\n", name);
 
+    msg.push_str("<pre>");
+    for item in data.0 {
+        msg.push_str(item.as_str());
+    }
+    msg.push_str("</pre>");
+    msg.push_str("\n");
+    let total = format!("<b>Total saldo: Rp {}.</b>\n\nSemoga bermanfaat.\nUntuk info lainnya /bantuan", data.1);
+    msg.push_str(total.as_str());
+    let req = Message{chat_id: id, text: msg, parse_mode: String::from(html(&TypeHtml))};
+
+    req
+}
 

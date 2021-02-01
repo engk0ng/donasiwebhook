@@ -15,7 +15,7 @@ use std::env;
 use async_std::task;
 use slog::{crit, o, Logger};
 
-use crate::models::{DataRekap, Rekap, SumberDana};
+use crate::models::{DataRekap, Rekap, SumberDana, Buku};
 
 use crate::utils;
 
@@ -148,6 +148,43 @@ impl  DbProcessor {
                 for item in res {
                     let sbd = SumberDana::new(item.nama, 
                         item.kode, 
+                        item.bg.unwrap_or("".to_string()));
+                    let debet = sbd.count_debet(&pool).await.unwrap_or(0);
+                    let kredit = sbd.count_kredit(&pool).await.unwrap_or(0);
+                    let saldo = debet - kredit;
+                    total_u += saldo;
+                    let money_i = saldo.to_string();
+                    let money = utils::convert_format_money(money_i);
+                    let str_fmt = format!("{}. {}\nRp {}\n\n", i, sbd.nama, money);
+                    result.push(str_fmt);
+                    i += 1;
+                }
+                total_str = utils::convert_format_money(total_u.to_string());
+            }
+            Err(_e) => {}
+        }
+
+        Ok((result, total_str))
+    }
+
+    pub async fn get_data_buku(self, pool: &PgPool) -> anyhow::Result<(Vec<String>, String)> {
+        let rec = sqlx::query!(r#"
+            select * from donasi.buku
+        "#)
+        .fetch_all(pool)
+        .await;
+
+        let mut result = Vec::<String>::new();
+        let mut total_str = String::from("Rp 0");
+        match rec {
+            Ok(res) => {
+                result.reserve(res.len());
+                let mut i: i32 = 1;
+                let mut total_u: i64 = 0;
+                for item in res {
+                    let sbd = Buku::new(item.id_buku, 
+                        item.nama.unwrap_or("".to_string()), 
+                        item.status.unwrap_or(false),
                         item.bg.unwrap_or("".to_string()));
                     let debet = sbd.count_debet(&pool).await.unwrap_or(0);
                     let kredit = sbd.count_kredit(&pool).await.unwrap_or(0);

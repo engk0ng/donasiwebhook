@@ -1,4 +1,5 @@
 
+use actix_http::body;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use slog;
@@ -162,5 +163,73 @@ async fn count_sd_kredit(kode: &String, pool: &PgPool) -> i64 {
         },
         Err(_e) => count = 0
     }
+    count
+}
+
+#[derive(Debug, Clone)]
+pub struct Buku {
+    pub id_buku: i32,
+    pub nama: String,
+    pub status: bool,
+    pub bg: String,
+}
+
+impl Buku {
+    pub fn new(id: i32, nm: String, st: bool, b: String) -> Self {
+        Buku {
+            id_buku: id,
+            nama: nm,
+            status: st,
+            bg: b
+        }
+    }
+
+    pub async fn count_debet(&self, pool: &PgPool) -> Result<i64> {
+        let k = count_buku_debet(&self.id_buku, &pool).await;
+        Ok(k)
+   }
+
+   pub async fn count_kredit(&self, pool: &PgPool) -> Result<i64> {
+       let l = count_buku_kredit(&self.id_buku, &pool).await;
+       Ok(l)
+   }
+}
+
+async fn count_buku_debet(id: &i32, pool: &PgPool) -> i64 {
+    let rec = sqlx::query!(r#"
+        SELECT nominal FROM donasi.debet WHERE buku_id = $1 and status_delete = $2
+    "#, id, false)
+    .fetch_all(pool)
+    .await;
+
+    let mut count: i64 = 0;
+    match rec {
+        Ok(res) => {
+            for item in res {
+                count += item.nominal;
+            }
+        },
+        Err(_e) => count = 0
+    }
+    count
+}
+
+async fn count_buku_kredit(id: &i32, pool: &PgPool) -> i64 {
+    let rec = sqlx::query!(r#"
+        SELECT nominal FROM donasi.kredit WHERE buku_id = $1 and status_delete = $2
+    "#, id, false)
+    .fetch_all(pool)
+    .await;
+
+    let mut count: i64 = 0;
+    match rec {
+        Ok(res) => {
+            for item in res {
+                count += item.nominal;
+            }
+        },
+        Err(_e) => count = 0
+    }
+
     count
 }
