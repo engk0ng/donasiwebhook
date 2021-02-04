@@ -192,8 +192,26 @@ impl  DbProcessor {
                     total_u += saldo;
                     let money_i = saldo.to_string();
                     let money = utils::convert_format_money(money_i);
-                    let str_fmt = format!("{}. {}\nRp {}\n\n", i, sbd.nama, money);
-                    result.push(str_fmt);
+                    if i != 2 {
+                        let str_fmt = format!("{}. {}\nRp {}\n\n", i, sbd.nama, money);
+                        result.push(str_fmt);
+                    }
+                    else {
+                        let jml_penarikan1 = jml_transaksi_pengguna(1, 10, &pool).await.unwrap();
+                        let jml_penarikan2 = jml_transaksi_pengguna(2, 11, &pool).await.unwrap();
+
+                        let jml_pengeluaran1 = jml_transaksi_pengguna(1, 3, &pool).await.unwrap();
+                        let jml_pengeluaran2 = jml_transaksi_pengguna(2, 3, &pool).await.unwrap();
+
+                        let saldo1 = jml_penarikan1 - jml_pengeluaran1;
+                        let saldo2 = jml_penarikan2 - jml_pengeluaran2;
+
+                        let str_fmt = format!("\t\tAbu Muhammad:\n{}\n\t\tAbu 'Abdillah:\n{}\n\n", saldo1, saldo2);
+ 
+                        let str_fmt = format!("{}. {}\nRp {}\n\n{}", i, sbd.nama, money, str_fmt);
+                        result.push(str_fmt);
+                    }
+                    
                     i += 1;
                 }
                 total_str = utils::convert_format_money(total_u.to_string());
@@ -202,5 +220,25 @@ impl  DbProcessor {
         }
 
         Ok((result, total_str))
+    }
+}
+
+pub async fn jml_transaksi_pengguna(id: i32, trans: i32, pool: &PgPool) -> anyhow::Result<i64> {
+    let rec = sqlx::query!(r#"
+        select nominal from donasi.kredit where pelaksana_id = $1 and jenis_transaksi_id = $2
+    "#, id, trans)
+    .fetch_all(pool)
+    .await;
+
+    match rec {
+        Ok(res) => {
+            let mut counter: i64 = 0;
+            for item in res {
+                counter += item.nominal
+            }
+
+            Ok(counter)
+        }
+        Err(e) => Ok(0)
     }
 }

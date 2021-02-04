@@ -48,7 +48,7 @@ pub async fn process(state: Data<AppState>, bytes: Bytes) -> Result<impl Respond
             let json: TelegramReq = serde_json::from_str(ss.as_str()).unwrap();
             if json.message.chat.chat_type == "group" {
                 let message_text = json.message.text;
-                let mut name: String = "-".to_string();
+                let name: String = "-".to_string();
                 if let Some(msg) = message_text {
                     let split = msg.split("@");
                     let arr = split.collect::<Vec<&str>>();
