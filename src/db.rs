@@ -192,25 +192,27 @@ impl  DbProcessor {
                     total_u += saldo;
                     let money_i = saldo.to_string();
                     let money = utils::convert_format_money(money_i);
-                    if i != 2 {
-                        let str_fmt = format!("{}. {}\nRp {}\n\n", i, sbd.nama, money);
-                        result.push(str_fmt);
-                    }
-                    else {
-                        let jml_penarikan1 = jml_transaksi_pengguna(1, 10, &pool).await.unwrap();
-                        let jml_penarikan2 = jml_transaksi_pengguna(2, 11, &pool).await.unwrap();
+                    // if i != 2 {
+                        
+                    // }
+                    // else {
+                    //     let jml_penarikan1 = jml_transaksi_pengguna(1, 10, &pool).await.unwrap();
+                    //     let jml_penarikan2 = jml_transaksi_pengguna(2, 11, &pool).await.unwrap();
 
-                        let jml_pengeluaran1 = jml_transaksi_pengguna(1, 3, &pool).await.unwrap();
-                        let jml_pengeluaran2 = jml_transaksi_pengguna(2, 3, &pool).await.unwrap();
+                    //     let jml_pengeluaran1 = jml_transaksi_pengguna(1, 3, &pool).await.unwrap();
+                    //     let jml_pengeluaran2 = jml_transaksi_pengguna(2, 3, &pool).await.unwrap();
 
-                        let saldo1 = jml_penarikan1 - jml_pengeluaran1;
-                        let saldo2 = jml_penarikan2 - jml_pengeluaran2;
+                    //     let saldo1 = jml_penarikan1 - jml_pengeluaran1;
+                    //     let saldo2 = jml_penarikan2 - jml_pengeluaran2;
 
-                        let str_fmt = format!("\t\tAbu Muhammad:\n{}\n\t\tAbu 'Abdillah:\n{}\n\n", saldo1, saldo2);
+                    //     let str_fmt = format!("\t\t-Abu Muhammad:\n\n\t\t{}\n\t\tAbu '-Abdillah:\n\t\t{}\n\n", saldo1, saldo2);
  
-                        let str_fmt = format!("{}. {}\nRp {}\n\n{}", i, sbd.nama, money, str_fmt);
-                        result.push(str_fmt);
-                    }
+                    //     let str_fmt = format!("{}. {}\nRp {}\n\n{}", i, sbd.nama, money, str_fmt);
+                    //     result.push(str_fmt);
+                    // }
+
+                    let str_fmt = format!("{}. {}\nRp {}\n\n", i, sbd.nama, money);
+                    result.push(str_fmt);
                     
                     i += 1;
                 }
